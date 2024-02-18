@@ -56,7 +56,7 @@ if ((uw.location.pathname.indexOf("game") >= 0))
     console.log("Grepolis Academy Planner active.");
     townResearch = BigInt(localStorage.getItem("GAP_" + Game.townId) ?? 0);
 
-    $("head").append($("<style/>").append(".GAP_highlight::after { content: ''; position: absolute; width: 100%; height: 100%; background-color: rgba(0, 255, 0, 0.5); }"));
+    $("head").append($("<style/>").append(".GAP_highlight_inactive::after { content: ''; position: absolute; width: 100%; height: 100%; background-color: rgba(0, 255, 0, 0.5); }").append(".GAP_highlight_active { border: 1px solid rgba(0, 255, 0, 1); }"));
 
     $.Observer(uw.GameEvents.game.load).subscribe("GAP_load", function (e, data) 
     {
@@ -112,29 +112,36 @@ if ((uw.location.pathname.indexOf("game") >= 0))
             {
                 var classes = $(element).attr("class").split(/\s+/);
                 var research = classes[2];
-                var inactive = classes[3] === "inactive";
                 $(element).click(function()
                 {
                     ToggleResearch(research);
                     ToggleClass(element);
                 });
 
-                if (BigInt(townResearch & Research[research]) === Research[research] && inactive) 
+                if (BigInt(townResearch & Research[research]) === Research[research]) 
                 {
-                    AddClass(element);
+                    if (classes[3] === "inactive")
+                    {
+                        AddClassInactive(element);
+                    }
+                    else
+                    {
+                        AddClassActive(element);
+                    }
                 }
             });
         });
     }
 
-    function ResetAcademy() {
+    function ResetAcademy() 
+    {
         var wnd = WM.getWindowByType("academy")[0];
         if (wnd) 
         {
             var tech_tree = $("#window_" + wnd.getIdentifier()).find("div.tech_tree_box");
             tech_tree.find("div.research").each(function(index, element) 
             {
-                $(element).removeClass("GAP_highlight");
+                RemoveClass(element);
             });
 
             OpenAcademy(wnd);
@@ -147,31 +154,37 @@ if ((uw.location.pathname.indexOf("game") >= 0))
         localStorage.setItem("GAP_" + Game.townId, townResearch);
     }
 
-    function AddClass(element)
+    function AddClassInactive(element)
     {
-        $(element).addClass("GAP_highlight");
+        $(element).addClass("GAP_highlight_inactive");
+    }
+
+    function AddClassActive(element)
+    {
+        $(element).addClass("GAP_highlight_active");
     }
 
     function RemoveClass(element)
     {
-        $(element).removeClass("GAP_highlight");
+        $(element).removeClass("GAP_highlight_inactive");
+        $(element).removeClass("GAP_highlight_active");
     }
 
     function ToggleClass(element)
     {
         var classes = $(element).attr("class").split(/\s+/);
-        if (classes[3] !== "inactive")
-        {
-            return;
-        }
 
-        if (classes.length === 5)
+        if (classes.length === 5 || classes[3] === "GAP_highlight_active")
         {
             RemoveClass(element);
         }
+        else if (classes[3] === "inactive")
+        {
+            AddClassInactive(element);
+        }
         else
         {
-            AddClass(element);
+            AddClassActive(element);
         }
     }
 
