@@ -71,15 +71,15 @@ if ((uw.location.pathname.indexOf("game") >= 0))
             switch (action) 
             {
                 case "/frontend_bridge/fetch":
-					var frontend_bridge = decodeURIComponent(url[1].split("&")[3]).split("\"")[3];
+                    var frontend_bridge = decodeURIComponent(url[1].split("&")[3]).split("\"")[3];
                     switch (frontend_bridge) {
                         case "academy":
                             var wnd = WM.getWindowByType("academy")[0];
                             OpenAcademy(wnd);
                             break;
                     }
-
-					break;
+                    
+                    break;
                 case "/notify/fetch":
                     var wnd = (WM.getWindowByType("academy"))[0];
                     if (wnd) {
